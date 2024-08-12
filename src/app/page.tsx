@@ -19,7 +19,7 @@ export default function Home() {
           </Link>
         </div>
         <h1 className="font-extrabold text-2xl md:text-3xl slg:text-4xl lg:text-5xl text-center w-full lg:w-[90%] uppercase mx-auto pt-4">CRAFT YOUR PERFECT SOCIAL MEDIA BIO IN SECONDS!</h1>
-        <p className="text-sm sm:text-base md:text-lg text-accent">Just answer a few questions, and we'll generate a bio that captures who you are.</p>
+        <p className="text-sm sm:text-base md:text-lg text-accent">Just answer a few questions, and we&apos;ll generate a bio that captures who you are.</p>
       </div>
       <BioProvider>
         <UserInput/>
