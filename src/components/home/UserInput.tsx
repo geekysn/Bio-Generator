@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react'
+import React, { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -27,6 +27,7 @@ import {
 import MetaIcon from '../icons/Meta'
 import MistralIcon from '../icons/Mistral'
 import { Slider } from '../ui/slider'
+import { Loader, Loader2 } from 'lucide-react';
 
 import {
     Tooltip,
@@ -36,6 +37,8 @@ import {
 import { InfoCircledIcon } from '@radix-ui/react-icons'
 import { Textarea } from '../ui/textarea'
 import { Switch } from '../ui/switch'
+import { generateBio } from '@/app/actions'
+import { BioContext } from '@/context/BioContext'
 
 const formSchema = z.object({
     model: z.string().min(1, "Model is required!"),
@@ -62,8 +65,29 @@ const UserInput = () => {
           emojis: false
         },
     })
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
+
+    const {setOutput, loading, setLoading} = useContext(BioContext)
+
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        // console.log(values);
+        setLoading(true)
+        const UserInputValues = `
+            User Input: ${values.content},
+            Bio Tone: ${values.tone},
+            Bio Type: ${values.type},
+            Add Emojis: ${values.emojis}
+        `
+        try {
+            const { data } = await generateBio(UserInputValues, values.temperature, values.model);
+            // console.log(data);
+            setOutput(data);
+        } 
+        catch (error) {
+            console.log(error);
+        }
+        finally{
+            setLoading(false);
+        }
     }
     return (
         <div className='relative flex flex-col items-start gap-8'>
@@ -86,42 +110,6 @@ const UserInput = () => {
                                         </SelectTrigger>
                                         </FormControl>
                                         <SelectContent>
-                                            <SelectItem value="llama-3.1-405b-reasoning">
-                                                <div className='flex items-start gap-3 text-muted-foreground'>
-                                                    <MetaIcon className='size-5'/>
-                                                    <div>
-                                                        <p>
-                                                            <span className='text-foreground font-medium mr-2'>
-                                                                Llama 3.1
-                                                            </span>
-                                                            405B (Preview)
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </SelectItem>
-                                            <SelectItem value="llama-3.1-8b-instant"><div className='flex items-start gap-3 text-muted-foreground'>
-                                                    <MetaIcon className='size-5'/>
-                                                    <div>
-                                                        <p>
-                                                            <span className='text-foreground font-medium mr-2'>
-                                                                Llama 3.1
-                                                            </span>
-                                                            8B (Preview)
-                                                        </p>
-                                                    </div>
-                                                </div></SelectItem>
-                                            <SelectItem value="llama-3.1-70b-versatile">
-                                                <div className='flex items-start gap-3 text-muted-foreground'>
-                                                    <MetaIcon className='size-5'/>
-                                                    <div>
-                                                        <p>
-                                                            <span className='text-foreground font-medium mr-2'>
-                                                                Llama 3.1
-                                                            </span>
-                                                            70B (Preview)
-                                                        </p>
-                                                    </div>
-                                                </div></SelectItem>
                                             <SelectItem value="llama-guard-3-8b">
                                             <div className='flex items-start gap-3 text-muted-foreground'>
                                                     <MetaIcon className='size-5'/>
@@ -233,7 +221,7 @@ const UserInput = () => {
                         )}
                         />
                     </div>
-                    <div className='grid grid-cols-2 gap-3'>
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-3'>
                     <FormField
                         control={form.control}
                         name="type"
@@ -301,7 +289,9 @@ const UserInput = () => {
                         />
                     </div>
                 </fieldset>
-                <Button type="submit" className='rounded'>Generate</Button>
+                <Button type="submit" className='rounded' disabled={loading}>
+                    {loading ? <Loader2 className='w-4 h-4 mr-2 animate-spin'/> : "Generate"}
+                </Button>
             </form>
             </Form>
         </div>
