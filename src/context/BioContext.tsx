@@ -19,7 +19,7 @@ export const BioContext = createContext<BioContextTypes>({
 export const BioProvider = ({children}:{children: React.ReactNode})=>{
     const [output, setOutput] = useState<{data: { bio: string }[]}>({data:[]});
     const [loading, setLoading] = useState(false);
-    console.log("output value: ", output);
+    // console.log("output value: ", output);
 
     return(
         <BioContext.Provider value={{output, setOutput, loading, setLoading}}>
